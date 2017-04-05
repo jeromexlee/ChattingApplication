@@ -61,7 +61,6 @@ class LoginViewController: UIViewController {
                 print("Saved user successfully into Firebase db")
             })
 
-            
         })
     }
     
