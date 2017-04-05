@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class LoginViewController: UIViewController {
     
@@ -31,7 +32,32 @@ class LoginViewController: UIViewController {
     }()
     
     func handleRegister() {
-        print(123)
+        guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else {
+            print("Form is not valid")
+            return
+        }
+        
+        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user: FIRUser?, error) in
+            if error != nil {
+                print(error)
+                return
+            }
+            
+            // successfully authenticated user
+            let ref = FIRDatabase.database().reference(fromURL: "https://chattingapplication-86079.firebaseio.com/")
+            let userReference = ref.child("users")
+            let values = ["name": name, "email": email]
+            userReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
+                if err != nil {
+                    print(err)
+                    return
+                }
+                
+                print("Saved user successfully into Firebase db")
+            })
+
+            
+        })
     }
     
     let nameTextField: UITextField = {
