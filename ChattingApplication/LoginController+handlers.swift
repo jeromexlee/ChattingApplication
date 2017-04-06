@@ -27,21 +27,44 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
             }
             
             // successfully authenticated user
-            let ref = FIRDatabase.database().reference(fromURL: "https://chattingapplication-86079.firebaseio.com/")
-            // add uid to the user
-            let userReference = ref.child("users").child(uid)
-            let values = ["name": name, "email": email]
-            userReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
-                if err != nil {
-                    print(err)
-                    return
-                }
-                
-                self.dismiss(animated: true, completion: nil)
-                
-                print("Saved user successfully into Firebase db")
-            })
+            let imageName = NSUUID().uuidString
+            let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(imageName).png")
+            if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {
+                storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
+                    if error != nil {
+                        print(error)
+                        return
+                    }
+                    if let profileImageUrl = metadata?.downloadURL()?.absoluteString {
+                        let values = ["name": name, "email": email, "profileImageUrl": profileImageUrl]
+                        self.registerUserIntoDatabaseWithUID(uid: uid, values: values as [String : AnyObject])
+                    }
+                    
+                    
+                    
+                })
+            }
             
+            
+            
+            
+        })
+    }
+    
+    private func registerUserIntoDatabaseWithUID(uid: String, values: [String: AnyObject]) {
+        let ref = FIRDatabase.database().reference(fromURL: "https://chattingapplication-86079.firebaseio.com/")
+        // add uid to the user
+        let userReference = ref.child("users").child(uid)
+        
+        userReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
+            if err != nil {
+                print(err)
+                return
+            }
+            
+            self.dismiss(animated: true, completion: nil)
+            
+            print("Saved user successfully into Firebase db")
         })
     }
     
