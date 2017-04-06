@@ -107,6 +107,14 @@ class LoginViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
+    
+    let loginRegisterSegmentedControl: UISegmentedControl = {
+        let sc = UISegmentedControl(items: ["Login", "Register"])
+        sc.translatesAutoresizingMaskIntoConstraints = false;
+        sc.tintColor = UIColor.white
+        sc.selectedSegmentIndex = 1
+        return sc;
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -116,17 +124,26 @@ class LoginViewController: UIViewController {
         view.addSubview(inputsContainerView)
         view.addSubview(loginRegisterButton)
         view.addSubview(profileImageView)
+        view.addSubview(loginRegisterSegmentedControl)
         
         setupInputsContainerView()
-        setuptLoginRegisterButton()
+        setupLoginRegisterButton()
         setupProfileImageView()
-        
+        setupLoginRegisterSegmentedControl()
+    }
+    
+    func setupLoginRegisterSegmentedControl() {
+        // need x, y, w, h constraints
+        loginRegisterSegmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        loginRegisterSegmentedControl.bottomAnchor.constraint(equalTo: inputsContainerView.topAnchor, constant: -12).isActive = true
+        loginRegisterSegmentedControl.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor, multiplier: 1).isActive = true
+        loginRegisterSegmentedControl.heightAnchor.constraint(equalToConstant: 36).isActive = true
     }
     
     func setupProfileImageView() {
         // need x, y, w, h constraints
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        profileImageView.bottomAnchor.constraint(equalTo: inputsContainerView.topAnchor, constant: -12).isActive = true
+        profileImageView.bottomAnchor.constraint(equalTo: loginRegisterSegmentedControl.topAnchor, constant: -12).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 150).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
     }
@@ -176,7 +193,7 @@ class LoginViewController: UIViewController {
         
     }
     
-    func setuptLoginRegisterButton() {
+    func setupLoginRegisterButton() {
         // need x, y, w, h constraints
         loginRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         loginRegisterButton.topAnchor.constraint(equalTo: inputsContainerView.bottomAnchor, constant: 12).isActive = true
