@@ -48,7 +48,7 @@ class MessageController: UITableViewController {
             print(logoutError)
         }
         
-        let loginController = LoginViewController()
+        let loginController = LoginController()
         present(loginController, animated: true, completion: nil)
     }
 
