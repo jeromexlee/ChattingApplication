@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class LoginViewController: UIViewController {
+class LoginController: UIViewController {
     
     let inputsContainerView: UIView = {
         let view = UIView()
@@ -56,41 +56,6 @@ class LoginViewController: UIViewController {
         
     }
     
-    func handleRegister() {
-        guard let email = emailTextField.text, let password = passwordTextField.text, let name = nameTextField.text else {
-            print("Form is not valid")
-            return
-        }
-        
-        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user: FIRUser?, error) in
-            if error != nil {
-                print(error)
-                return
-            }
-            
-            guard let uid = user?.uid else {
-                return
-            }
-            
-            // successfully authenticated user
-            let ref = FIRDatabase.database().reference(fromURL: "https://chattingapplication-86079.firebaseio.com/")
-            // add uid to the user
-            let userReference = ref.child("users").child(uid)
-            let values = ["name": name, "email": email]
-            userReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
-                if err != nil {
-                    print(err)
-                    return
-                }
-                
-                self.dismiss(animated: true, completion: nil)
-                
-                print("Saved user successfully into Firebase db")
-            })
-
-        })
-    }
-    
     let nameTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Name"
@@ -127,11 +92,14 @@ class LoginViewController: UIViewController {
         return tf;
     }()
     
-    let profileImageView: UIImageView = {
+    lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "nameWhite")
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectProfileImageView)))
+        imageView.isUserInteractionEnabled = true
         return imageView
     }()
     
