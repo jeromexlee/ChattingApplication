@@ -44,10 +44,7 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
                     
                 })
             }
-            
-            
-            
-            
+
         })
     }
     
@@ -61,6 +58,8 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
                 print(err)
                 return
             }
+            
+            self.messagesController?.navigationItem.title = values["name"] as! String
             
             self.dismiss(animated: true, completion: nil)
             
