@@ -16,6 +16,7 @@
 		2A1D08281E958FDA00282300 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1D08271E958FDA00282300 /* LoginViewController.swift */; };
 		2A1D082A1E95A86200282300 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2A1D08291E95A86200282300 /* GoogleService-Info.plist */; };
 		2A46BA761E981322002EEFE4 /* ChatLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A46BA751E981322002EEFE4 /* ChatLogController.swift */; };
+		2A46BA781E9829CB002EEFE4 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A46BA771E9829CB002EEFE4 /* Message.swift */; };
 		2A5928BD1E96F1500004AB1F /* NewMessageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5928BC1E96F1500004AB1F /* NewMessageController.swift */; };
 		2A5928C01E96F5820004AB1F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5928BF1E96F5820004AB1F /* User.swift */; };
 		2A5928C31E96FBD00004AB1F /* LoginController+handlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5928C21E96FBD00004AB1F /* LoginController+handlers.swift */; };
@@ -34,6 +35,7 @@
 		2A1D08271E958FDA00282300 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		2A1D08291E95A86200282300 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2A46BA751E981322002EEFE4 /* ChatLogController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogController.swift; sourceTree = "<group>"; };
+		2A46BA771E9829CB002EEFE4 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		2A5928BC1E96F1500004AB1F /* NewMessageController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessageController.swift; sourceTree = "<group>"; };
 		2A5928BF1E96F5820004AB1F /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		2A5928C21E96FBD00004AB1F /* LoginController+handlers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LoginController+handlers.swift"; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				2A5928BF1E96F5820004AB1F /* User.swift */,
+				2A46BA771E9829CB002EEFE4 /* Message.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -261,6 +264,7 @@
 				2A46BA761E981322002EEFE4 /* ChatLogController.swift in Sources */,
 				2A5928BD1E96F1500004AB1F /* NewMessageController.swift in Sources */,
 				2A1D08281E958FDA00282300 /* LoginViewController.swift in Sources */,
+				2A46BA781E9829CB002EEFE4 /* Message.swift in Sources */,
 				2A5928C31E96FBD00004AB1F /* LoginController+handlers.swift in Sources */,
 				2A1D08171E95896300282300 /* MessagesController.swift in Sources */,
 				2A5928C01E96F5820004AB1F /* User.swift in Sources */,
