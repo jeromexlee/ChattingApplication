@@ -57,7 +57,7 @@ class NewMessageController: UITableViewController {
         cell.detailTextLabel?.text = user.email
         
         if let profileImageUrl = user.profileImageUrl {
-            cell.profileImageView.loadImageUSingCacheWithUrlString(urlString: profileImageUrl)
+            cell.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
         }
         return cell
     }

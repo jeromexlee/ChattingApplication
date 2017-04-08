@@ -36,7 +36,7 @@ class UserCell: UITableViewCell {
                 if let dictionary = snapshot.value as? [String: AnyObject] {
                     self.textLabel?.text = dictionary["name"] as? String
                     if let profileImageUrl = dictionary["profileImageUrl"] as? String {
-                        self.profileImageView.loadImageUSingCacheWithUrlString(urlString: profileImageUrl)
+                        self.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
                     }
                 }
             }, withCancel: nil)
