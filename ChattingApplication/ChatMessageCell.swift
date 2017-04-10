@@ -9,6 +9,9 @@
 import UIKit
 
 class ChatMessageCell: UICollectionViewCell {
+    
+    var chatLogController: ChatLogController?
+    
     let textView: UITextView = {
         let tv = UITextView()
         tv.text = "SAMPLE TEXT FOR NOW"
@@ -16,6 +19,7 @@ class ChatMessageCell: UICollectionViewCell {
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.backgroundColor = .clear
         tv.textColor = .white
+        tv.isEditable = false
         return tv
     }()
     
@@ -32,13 +36,32 @@ class ChatMessageCell: UICollectionViewCell {
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "new_message_icon")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 16
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
+    
+    lazy var messageImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.cornerRadius = 16
+        imageView.layer.masksToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomTap)))
+        return imageView
+
+    }()
+    
+    func handleZoomTap(tapGesture: UITapGestureRecognizer) {
+        if let imageView = tapGesture.view as? UIImageView {
+            // PRO Tip: don't perfom a lot of custom logic inside of view class
+            self.chatLogController?.performZoomInForStartingImageView(startingImageView: imageView)
+        }
+        
+    }
     
     var bubbleWidthAnchor: NSLayoutConstraint?
     var bubbleViewRightAnchor: NSLayoutConstraint?
@@ -50,6 +73,14 @@ class ChatMessageCell: UICollectionViewCell {
         addSubview(bubbleView)
         addSubview(textView)
         addSubview(profileImageView)
+        
+        bubbleView.addSubview(messageImageView)
+        
+        // Constraint anchors: x, y, width, height
+        messageImageView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
+        messageImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        messageImageView.widthAnchor.constraint(equalTo: bubbleView.widthAnchor).isActive = true
+        messageImageView.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
         
         // Constraint anchors: x, y, width, height
         profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
