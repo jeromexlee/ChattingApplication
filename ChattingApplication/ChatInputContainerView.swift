@@ -14,16 +14,14 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
     var audioRecorder:AVAudioRecorder!
     var audioPlayer:AVAudioPlayer!
     
-    ////定义音频的编码参数，这部分比较重要，决定录制音频文件的格式、音质、容量大小等，建议采用AAC的编码方式
-    let recordSettings = [AVSampleRateKey : NSNumber(value: Float(44100.0) as Float),//声音采样率
-        AVFormatIDKey : NSNumber(value: Int32(kAudioFormatMPEG4AAC) as Int32),//编码格式
-        AVNumberOfChannelsKey : NSNumber(value: 1 as Int32),//采集音轨
-        AVEncoderAudioQualityKey : NSNumber(value: Int32(AVAudioQuality.medium.rawValue) as Int32)]//音频质量
+    // Configure recording parameters which deciding the type, quality, size, etc. Suggest using AAC format.
+    let recordSettings = [AVSampleRateKey : NSNumber(value: Float(44100.0) as Float), // Voice recording rate
+        AVFormatIDKey : NSNumber(value: Int32(kAudioFormatMPEG4AAC) as Int32), // Encording format
+        AVNumberOfChannelsKey : NSNumber(value: 1 as Int32), // Collecting channel
+        AVEncoderAudioQualityKey : NSNumber(value: Int32(AVAudioQuality.medium.rawValue) as Int32)] // Voicee quality
     
     var chatLogController: ChatLogController? {
         didSet {
-//            sendButton.addTarget(chatLogController, action: #selector(ChatLogController.handleSend), for: .touchUpInside)
-            
             uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: chatLogController, action: #selector(ChatLogController.handleUploadTap)))
         }
     }
@@ -108,8 +106,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
     }
     
     func directoryURL() -> URL? {
-        //定义并构建一个url来保存音频，音频文件名为ddMMyyyyHHmmss.caf
-        //根据时间来设置存储文件名
+        // Make a url to save the recorded file in ddMMyyyyHHmmss.caf
         let currentDateTime = Date()
         let formatter = DateFormatter()
         formatter.dateFormat = "ddMMyyyyHHmmss"
