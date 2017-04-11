@@ -55,6 +55,9 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         sendButton.addGestureRecognizer(holdSendGesture)
         sendButton.setTitle("Send", for: .normal)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
+        sendButton.layer.cornerRadius = 20
+        sendButton.layer.masksToBounds = true
+        
         
         addSubview(sendButton)
         

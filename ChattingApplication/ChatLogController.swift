@@ -82,7 +82,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             // Init instant
             try audioRecorder = AVAudioRecorder(url: self.directoryURL()!, settings: recordSettings)
             // Ready to record
-            audioRecorder.prepareToRecord()
+            audioRecorder.prepareToRecord()     
         } catch {
             
         }
@@ -94,12 +94,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let formatter = DateFormatter()
         formatter.dateFormat = "ddMMyyyyHHmmss"
         let recordingName = formatter.string(from: currentDateTime) + ".caf"
-        print(recordingName)
         
         let fileManager = FileManager.default
         let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = urls[0] as URL
         let soundURL = documentDirectory.appendingPathComponent(recordingName)
+        print(soundURL)
         return soundURL
     }
     
