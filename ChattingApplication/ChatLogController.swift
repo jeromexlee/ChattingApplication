@@ -13,6 +13,15 @@ import AVFoundation
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    var audioRecorder:AVAudioRecorder!
+    var audioPlayer:AVAudioPlayer!
+    
+    // Configure recording parameters which deciding the type, quality, size, etc. Suggest using AAC format.
+    let recordSettings = [AVSampleRateKey : NSNumber(value: Float(44100.0) as Float), // Voice recording rate
+        AVFormatIDKey : NSNumber(value: Int32(kAudioFormatMPEG4AAC) as Int32), // Encording format
+        AVNumberOfChannelsKey : NSNumber(value: 1 as Int32), // Collecting channel
+        AVEncoderAudioQualityKey : NSNumber(value: Int32(AVAudioQuality.medium.rawValue) as Int32)] // Voicee quality
+    
     var user: User? {
         didSet {
             navigationItem.title = user?.name
@@ -63,6 +72,35 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.keyboardDismissMode = .interactive
         
         setupKeyboardObservers()
+        setupVoiceRecorder()
+    }
+    
+    func setupVoiceRecorder() {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            // Init instant
+            try audioRecorder = AVAudioRecorder(url: self.directoryURL()!, settings: recordSettings)
+            // Ready to record
+            audioRecorder.prepareToRecord()
+        } catch {
+            
+        }
+    }
+    
+    func directoryURL() -> URL? {
+        // Make a url to save the recorded file in ddMMyyyyHHmmss.caf
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "ddMMyyyyHHmmss"
+        let recordingName = formatter.string(from: currentDateTime) + ".caf"
+        print(recordingName)
+        
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = urls[0] as URL
+        let soundURL = documentDirectory.appendingPathComponent(recordingName)
+        return soundURL
     }
     
     lazy var inputContainerView: ChatInputContainerView = {
@@ -78,6 +116,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         imagePickerController.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String]
         present(imagePickerController, animated: true, completion: nil)
     }
+    
+    
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
@@ -412,6 +452,46 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 zoomOutImageView.removeFromSuperview()
                 self.startingImageView?.isHidden = false
             })
+        }
+    }
+    
+    func startRecord() {
+        // Start recording message
+        if !audioRecorder.isRecording {
+            let audioSession = AVAudioSession.sharedInstance()
+            do {
+                try audioSession.setActive(true)
+                audioRecorder.record()
+                print("record!")
+            } catch {
+                
+            }
+        }
+    }
+    
+    func stopRecord() {
+        // End recording message
+        audioRecorder.stop()
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        do {
+            try audioSession.setActive(false)
+            print("stop!!")
+        } catch {
+            
+        }
+    }
+    
+    func playRecordedMessage() {
+        // Play recorded voice message
+        if (!audioRecorder.isRecording){
+            do {
+                try audioPlayer = AVAudioPlayer(contentsOf: audioRecorder.url)
+                audioPlayer.play()
+                print("play!!")
+            } catch {
+                
+            }
         }
     }
 }
