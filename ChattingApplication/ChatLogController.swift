@@ -75,43 +75,46 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         setupVoiceRecorder()
     }
     
-    func setupVoiceRecorder() {
+    func setupVoiceRecorder() -> URL {
         let audioSession = AVAudioSession.sharedInstance()
+        let voiceUrl = self.generateVoiceUrl()
         do {
             try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
             // Init instant
-            try audioRecorder = AVAudioRecorder(url: self.directoryURL()!, settings: recordSettings)
+            try audioRecorder = AVAudioRecorder(url: voiceUrl!, settings: recordSettings)
             // Ready to record
             audioRecorder.prepareToRecord()     
         } catch {
             
         }
+        return voiceUrl!
     }
     
-    private func handleVoiceRecordedForUrl(url: URL) {
+    func generateVoiceUrl() -> URL? {
         let filename = NSUUID().uuidString + ".caf"
-        let uploadTask = FIRStorage.storage().reference().child("message_voices").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = urls[0] as URL
+        let soundURL = documentDirectory.appendingPathComponent(filename)
+        return soundURL
+    }
+    
+    func handleVoiceRecordedForUrl(url: URL) {
+        let filename = NSUUID().uuidString + ".caf"
+        FIRStorage.storage().reference().child("message_voices").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
             if error != nil {
                 print("Failed upload of video:", error!)
                 return
             }
             if let voiceUrl = metadata?.downloadURL()?.absoluteString {
-                let properties: [String: Any] = ["voiceUrl": voiceUrl]
-                self.sendMessageWithProperties(properties: properties as [String : AnyObject])
+                self.sendMessageWithImageUrl(voiceUrl: voiceUrl)
             }
         })
-        
     }
     
-    func directoryURL() -> URL? {
-        let filename = NSUUID().uuidString + ".caf"
-        
-        let fileManager = FileManager.default
-        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-        let documentDirectory = urls[0] as URL
-        let soundURL = documentDirectory.appendingPathComponent(filename)
-        print(soundURL)
-        return soundURL
+    private func sendMessageWithImageUrl(voiceUrl: String) {
+        let properties: [String: Any] = ["voiceUrl": voiceUrl]
+        self.sendMessageWithProperties(properties: properties as [String : AnyObject])
     }
     
     lazy var inputContainerView: ChatInputContainerView = {

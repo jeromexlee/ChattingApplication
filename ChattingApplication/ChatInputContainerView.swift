@@ -11,6 +11,8 @@ import AVFoundation
 
 class ChatInputContainerView: UIView, UITextFieldDelegate {
     
+    var voiceUrl: URL?
+    
     var chatLogController: ChatLogController? {
         didSet {
             uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: chatLogController, action: #selector(ChatLogController.handleUploadTap)))
@@ -103,13 +105,14 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
             print("UIGestureRecognizerStateBegan.")
             //Do Whatever You want on Began of Gesture
             sendButton.backgroundColor = .red
+            voiceUrl = chatLogController?.setupVoiceRecorder()
             chatLogController?.startRecord()
         } else if sender.state == .ended {
             print("UIGestureRecognizerStateEnded")
             //Do Whatever You want on End of Gesture
             sendButton.backgroundColor = .clear
             chatLogController?.stopRecord()
-            chatLogController?.playRecordedMessage()
+            chatLogController?.handleVoiceRecordedForUrl(url: voiceUrl!)
         }
     }
     
