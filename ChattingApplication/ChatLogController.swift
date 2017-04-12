@@ -298,9 +298,14 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             // fall in here if its an image message
             cell.bubbleWidthAnchor?.constant = 200
             cell.textView.isHidden = true
+            cell.playButtonLeftAnchor?.isActive = false
+            cell.playButtonCenterXAnchor?.isActive = true
         } else if message.voiceUrl != nil {
             // fall in here if its an voice message
             cell.textView.isHidden = true
+            cell.bubbleWidthAnchor?.constant = 200
+            cell.playButtonLeftAnchor?.isActive = true
+            cell.playButtonCenterXAnchor?.isActive = false
         }
 
         cell.playButton.isHidden = message.videoUrl == nil && message.voiceUrl == nil
@@ -346,7 +351,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        var height: CGFloat = 80
+        var height: CGFloat = 40
         
         let message = messages[indexPath.item]
         if let text = message.text {

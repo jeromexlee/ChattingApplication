@@ -96,6 +96,7 @@ class ChatMessageCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
+        view.setupShadowView()
         return view
     }()
     
@@ -105,6 +106,7 @@ class ChatMessageCell: UICollectionViewCell {
         imageView.layer.cornerRadius = 16
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
+        imageView.setupShadowView()
         return imageView
     }()
     
@@ -116,6 +118,7 @@ class ChatMessageCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.isUserInteractionEnabled = true
         imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomTap)))
+        imageView.setupShadowView()
         return imageView
 
     }()
@@ -135,6 +138,9 @@ class ChatMessageCell: UICollectionViewCell {
     var bubbleViewRightAnchor: NSLayoutConstraint?
     var bubbleViewLeftAnchor: NSLayoutConstraint?
     
+    var playButtonLeftAnchor: NSLayoutConstraint?
+    var playButtonCenterXAnchor: NSLayoutConstraint?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -152,15 +158,17 @@ class ChatMessageCell: UICollectionViewCell {
         
         bubbleView.addSubview(playButton)
         // Constraint anchors: x, y, width, height
-        playButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
+        playButtonCenterXAnchor = playButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor)
+        playButtonCenterXAnchor?.isActive = true
+        playButtonLeftAnchor = playButton.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 4)
         playButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
         playButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         bubbleView.addSubview(activityIndicatorView)
         // Constraint anchors: x, y, width, height
-        activityIndicatorView.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
-        activityIndicatorView.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
+        activityIndicatorView.centerXAnchor.constraint(equalTo: playButton.centerXAnchor).isActive = true
+        activityIndicatorView.centerYAnchor.constraint(equalTo: playButton.centerYAnchor).isActive = true
         activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
         activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
