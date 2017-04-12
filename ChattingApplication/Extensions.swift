@@ -46,9 +46,9 @@ extension UIImageView {
 extension UIView {
     func setupShadowView() {
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.8
-        layer.shadowOffset = CGSize.zero
-        layer.shadowRadius = 15
+        layer.shadowOpacity = 0.4
+        layer.shadowOffset = CGSize(width: 0, height: 10)
+        layer.shadowRadius = 5
         layer.shouldRasterize = true
     }
 }
