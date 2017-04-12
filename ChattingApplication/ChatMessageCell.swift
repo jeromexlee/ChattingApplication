@@ -37,22 +37,41 @@ class ChatMessageCell: UICollectionViewCell {
     
     func handlePlay() {
         if let videoUrlString = message?.videoUrl, let url = URL(string: videoUrlString) {
-            player = AVPlayer(url: url)
-            playerLayer = AVPlayerLayer(player: player)
-            playerLayer?.frame = bubbleView.bounds
-            bubbleView.layer.addSublayer(playerLayer!)
-            
-            player?.play()
-            activityIndicatorView.startAnimating()
-            playButton.isHidden = true
-            
-            print("Attempting to play video?")
+            preparePlayer(url: url)
+            print("Attempting to play video")
+        } else if let voiceUrlStirng = message?.voiceUrl, let url = URL(string: voiceUrlStirng) {
+            // Play recorded voice message
+            preparePlayer(url: url)
+            print("Attempting to play voice")
         }
         
     }
     
+    private func preparePlayer(url: URL) {
+        if player == nil {
+            player = AVPlayer(url: url)
+        }
+        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player?.currentItem)
+        playerLayer = AVPlayerLayer(player: player)
+        playerLayer?.frame = bubbleView.bounds
+        bubbleView.layer.addSublayer(playerLayer!)
+        
+        player?.play()
+        activityIndicatorView.startAnimating()
+        playButton.isHidden = true
+    }
+    
+    func playerDidFinishPlaying(note: NSNotification) {
+        NotificationCenter.default.removeObserver(self)
+        activityIndicatorView.stopAnimating()
+        playerLayer?.removeFromSuperlayer()
+        player?.seek(to: kCMTimeZero)
+        playButton.isHidden = false
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
+        NotificationCenter.default.removeObserver(self)
         playerLayer?.removeFromSuperlayer()
         player?.pause()
         activityIndicatorView.stopAnimating()
@@ -165,6 +184,7 @@ class ChatMessageCell: UICollectionViewCell {
         textView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
         textView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
         textView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
+        
     }
     
     required init?(coder aDecoder: NSCoder) {

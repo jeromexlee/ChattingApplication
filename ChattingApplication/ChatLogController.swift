@@ -14,7 +14,6 @@ import AVFoundation
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var audioRecorder:AVAudioRecorder!
-    var audioPlayer:AVAudioPlayer!
     
     // Configure recording parameters which deciding the type, quality, size, etc. Suggest using AAC format.
     let recordSettings = [AVSampleRateKey : NSNumber(value: Float(44100.0) as Float), // Voice recording rate
@@ -72,7 +71,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.keyboardDismissMode = .interactive
         
         setupKeyboardObservers()
-        setupVoiceRecorder()
     }
     
     func setupVoiceRecorder() -> URL {
@@ -300,9 +298,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             // fall in here if its an image message
             cell.bubbleWidthAnchor?.constant = 200
             cell.textView.isHidden = true
+        } else if message.voiceUrl != nil {
+            // fall in here if its an voice message
+            cell.textView.isHidden = true
         }
 
-        cell.playButton.isHidden = message.videoUrl == nil
+        cell.playButton.isHidden = message.videoUrl == nil && message.voiceUrl == nil
         
         return cell
     }
@@ -499,17 +500,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    func playRecordedMessage() {
-        // Play recorded voice message
-        if (!audioRecorder.isRecording){
-            do {
-                try audioPlayer = AVAudioPlayer(contentsOf: audioRecorder.url)
-                audioPlayer.play()
-                print("play!!")
-            } catch {
-                
-            }
-        }
-    }
+    
 }
 
