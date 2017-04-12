@@ -88,17 +88,28 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
+    private func handleVoiceRecordedForUrl(url: URL) {
+        let filename = NSUUID().uuidString + ".caf"
+        let uploadTask = FIRStorage.storage().reference().child("message_voices").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
+            if error != nil {
+                print("Failed upload of video:", error!)
+                return
+            }
+            if let voiceUrl = metadata?.downloadURL()?.absoluteString {
+                let properties: [String: Any] = ["voiceUrl": voiceUrl]
+                self.sendMessageWithProperties(properties: properties as [String : AnyObject])
+            }
+        })
+        
+    }
+    
     func directoryURL() -> URL? {
-        // Make a url to save the recorded file in ddMMyyyyHHmmss.caf
-        let currentDateTime = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "ddMMyyyyHHmmss"
-        let recordingName = formatter.string(from: currentDateTime) + ".caf"
+        let filename = NSUUID().uuidString + ".caf"
         
         let fileManager = FileManager.default
         let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = urls[0] as URL
-        let soundURL = documentDirectory.appendingPathComponent(recordingName)
+        let soundURL = documentDirectory.appendingPathComponent(filename)
         print(soundURL)
         return soundURL
     }
@@ -154,8 +165,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         })
         uploadTask.observe(.progress) { (snapshot) in
             
-            if let completedUnitCount = snapshot.progress?.completedUnitCount {
-                self.navigationItem.title = String(completedUnitCount)
+            if let completedUnitCount = snapshot.progress?.completedUnitCount, let totalUnitCount = snapshot.progress?.totalUnitCount {
+                if totalUnitCount != 0 {
+                    let percentage = Int(Double(completedUnitCount) / Double(totalUnitCount) * 100)
+                    self.navigationItem.title = "Uploading" + String(percentage) + "%"
+                }
             }
         }
         
