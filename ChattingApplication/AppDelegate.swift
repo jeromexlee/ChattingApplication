@@ -8,7 +8,6 @@
 
 import UIKit
 import Firebase
-import Parse
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,22 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-
-        //For Parse Server on Heroku
-        let configuration = ParseClientConfiguration {
-            $0.applicationId = "2tEzRbPZr088V8fsBCsjgat0aX4fLKtgLflXOTXe"
-            $0.clientKey = "bf7Sv4Q4vmF8uP4mWxIpg7g5RmldLPgIKU5zSq1f"
-            $0.server = "https://jupigo.herokuapp.com/parse"
-        }
-        Parse.initialize(with: configuration)
-        PFUser.enableAutomaticUser()
-        
-        let defaultACL = PFACL();
-        print ("didFinishLaunchingWithOptions")
-        // If you would like all objects to be private by default, remove this line.
-        defaultACL.getPublicReadAccess = true
-        PFACL.setDefault(defaultACL, withAccessForCurrentUser:true)
-        
         FIRApp.configure()
         
         window = UIWindow(frame: UIScreen.main.bounds)
