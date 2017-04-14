@@ -13,6 +13,14 @@ import AVFoundation
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    var audioRecorder:AVAudioRecorder!
+    
+    // Configure recording parameters which deciding the type, quality, size, etc. Suggest using AAC format.
+    let recordSettings = [AVSampleRateKey : NSNumber(value: Float(44100.0) as Float), // Voice recording rate
+        AVFormatIDKey : NSNumber(value: Int32(kAudioFormatMPEG4AAC) as Int32), // Encording format
+        AVNumberOfChannelsKey : NSNumber(value: 1 as Int32), // Collecting channel
+        AVEncoderAudioQualityKey : NSNumber(value: Int32(AVAudioQuality.medium.rawValue) as Int32)] // Voicee quality
+    
     var user: User? {
         didSet {
             navigationItem.title = user?.name
@@ -65,6 +73,48 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         setupKeyboardObservers()
     }
     
+    func setupVoiceRecorder() -> URL {
+        let audioSession = AVAudioSession.sharedInstance()
+        let voiceUrl = self.generateVoiceUrl()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            // Init instant
+            try audioRecorder = AVAudioRecorder(url: voiceUrl!, settings: recordSettings)
+            // Ready to record
+            audioRecorder.prepareToRecord()     
+        } catch {
+            
+        }
+        return voiceUrl!
+    }
+    
+    func generateVoiceUrl() -> URL? {
+        let filename = NSUUID().uuidString + ".caf"
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = urls[0] as URL
+        let soundURL = documentDirectory.appendingPathComponent(filename)
+        return soundURL
+    }
+    
+    func handleVoiceRecordedForUrl(url: URL) {
+        let filename = NSUUID().uuidString + ".caf"
+        FIRStorage.storage().reference().child("message_voices").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
+            if error != nil {
+                print("Failed upload of video:", error!)
+                return
+            }
+            if let voiceUrl = metadata?.downloadURL()?.absoluteString {
+                self.sendMessageWithImageUrl(voiceUrl: voiceUrl)
+            }
+        })
+    }
+    
+    private func sendMessageWithImageUrl(voiceUrl: String) {
+        let properties: [String: Any] = ["voiceUrl": voiceUrl]
+        self.sendMessageWithProperties(properties: properties as [String : AnyObject])
+    }
+    
     lazy var inputContainerView: ChatInputContainerView = {
         let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
         chatInputContainerView.chatLogController = self
@@ -78,6 +128,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         imagePickerController.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String]
         present(imagePickerController, animated: true, completion: nil)
     }
+    
+    
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
@@ -114,8 +166,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         })
         uploadTask.observe(.progress) { (snapshot) in
             
-            if let completedUnitCount = snapshot.progress?.completedUnitCount {
-                self.navigationItem.title = String(completedUnitCount)
+            if let completedUnitCount = snapshot.progress?.completedUnitCount, let totalUnitCount = snapshot.progress?.totalUnitCount {
+                if totalUnitCount != 0 {
+                    let percentage = Int(Double(completedUnitCount) / Double(totalUnitCount) * 100)
+                    self.navigationItem.title = "Uploading" + String(percentage) + "%"
+                }
             }
         }
         
@@ -243,9 +298,17 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             // fall in here if its an image message
             cell.bubbleWidthAnchor?.constant = 200
             cell.textView.isHidden = true
+            cell.playButtonLeftAnchor?.isActive = false
+            cell.playButtonCenterXAnchor?.isActive = true
+        } else if message.voiceUrl != nil {
+            // fall in here if its an voice message
+            cell.textView.isHidden = true
+            cell.bubbleWidthAnchor?.constant = 200
+            cell.playButtonLeftAnchor?.isActive = true
+            cell.playButtonCenterXAnchor?.isActive = false
         }
 
-        cell.playButton.isHidden = message.videoUrl == nil
+        cell.playButton.isHidden = message.videoUrl == nil && message.voiceUrl == nil
         
         return cell
     }
@@ -288,7 +351,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        var height: CGFloat = 80
+        var height: CGFloat = 40
         
         let message = messages[indexPath.item]
         if let text = message.text {
@@ -414,5 +477,34 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             })
         }
     }
+    
+    func startRecord() {
+        // Start recording message
+        if !audioRecorder.isRecording {
+            let audioSession = AVAudioSession.sharedInstance()
+            do {
+                try audioSession.setActive(true)
+                audioRecorder.record()
+                print("record!")
+            } catch {
+                
+            }
+        }
+    }
+    
+    func stopRecord() {
+        // End recording message
+        audioRecorder.stop()
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        do {
+            try audioSession.setActive(false)
+            print("stop!!")
+        } catch {
+            
+        }
+    }
+    
+    
 }
 

@@ -10,10 +10,10 @@ import UIKit
 
 class ChatInputContainerView: UIView, UITextFieldDelegate {
     
+    var voiceUrl: URL?
+    
     var chatLogController: ChatLogController? {
         didSet {
-            sendButton.addTarget(chatLogController, action: #selector(ChatLogController.handleSend), for: .touchUpInside)
-            
             uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: chatLogController, action: #selector(ChatLogController.handleUploadTap)))
         }
     }
@@ -27,6 +27,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
     }()
     
     let sendButton = UIButton(type: .system)
+    
     let uploadImageView: UIImageView = {
         let uploadImageView = UIImageView()
         uploadImageView.isUserInteractionEnabled = true
@@ -48,8 +49,16 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         uploadImageView.widthAnchor.constraint(equalToConstant: 44).isActive = true
         uploadImageView.heightAnchor.constraint(equalToConstant: 44).isActive = true
         
+        let tapSendGesture = UITapGestureRecognizer(target: self, action: #selector(handleSend))
+        let holdSendGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleRecord))
+        tapSendGesture.numberOfTapsRequired = 1
+        sendButton.addGestureRecognizer(tapSendGesture)
+        sendButton.addGestureRecognizer(holdSendGesture)
         sendButton.setTitle("Send", for: .normal)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
+        sendButton.layer.cornerRadius = 20
+        sendButton.layer.masksToBounds = true
+        
         
         addSubview(sendButton)
         
@@ -78,12 +87,32 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         separatorLineView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         separatorLineView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
         separatorLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        
+
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         chatLogController?.handleSend()
         return true
+    }
+
+    func handleSend(sender: UIGestureRecognizer){
+        chatLogController?.handleSend()
+    }
+
+    func handleRecord(sender: UIGestureRecognizer){
+        if sender.state == .began {
+            print("UIGestureRecognizerStateBegan.")
+            //Do Whatever You want on Began of Gesture
+            sendButton.backgroundColor = .red
+            voiceUrl = chatLogController?.setupVoiceRecorder()
+            chatLogController?.startRecord()
+        } else if sender.state == .ended {
+            print("UIGestureRecognizerStateEnded")
+            //Do Whatever You want on End of Gesture
+            sendButton.backgroundColor = .clear
+            chatLogController?.stopRecord()
+            chatLogController?.handleVoiceRecordedForUrl(url: voiceUrl!)
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
