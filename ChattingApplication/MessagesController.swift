@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import Parse
 
 class MessagesController: UITableViewController {
     
@@ -26,6 +27,8 @@ class MessagesController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         
         tableView.allowsMultipleSelectionDuringEditing = true
+        
+        
     }
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -33,9 +36,7 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            return
-        }
+        let uid = getUid()
         
         let message = self.messages[indexPath.row]
         
@@ -59,9 +60,7 @@ class MessagesController: UITableViewController {
     var messagesDictionary = [String: Message]()
     
     func observeUserMessages() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            return
-        }
+        let uid = getUid()
         
         let ref = FIRDatabase.database().reference().child("user-messages").child(uid)
         ref.observe(.childAdded, with: { (snapshot) in
@@ -157,7 +156,7 @@ class MessagesController: UITableViewController {
     }
     
     func checkIfUserIsLoggedIn() {
-        if FIRAuth.auth()?.currentUser?.uid == nil {
+        if PFUser.current()?.objectId == nil && FIRAuth.auth()?.currentUser?.uid == nil {
             perform(#selector(handleLogout), with: nil, afterDelay: 0)
         } else {
             fetchUserAndSetupNavBarTitle()
@@ -165,10 +164,7 @@ class MessagesController: UITableViewController {
     }
     
     func fetchUserAndSetupNavBarTitle() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            // For some reason uid = nil
-            return
-        }
+        let uid = getUid()
         
         FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             
@@ -236,15 +232,18 @@ class MessagesController: UITableViewController {
     }
     
     func handleLogout() {
-        
+        PFUser.logOut()
         do {
             try FIRAuth.auth()?.signOut()
         } catch let logoutError {
             print(logoutError)
         }
-        
         let loginController = LoginController()
         loginController.messagesController = self
         present(loginController, animated: true, completion: nil)
+    }
+    
+    func getUid() -> String {
+        return (PFUser.current()?.objectId == nil ? FIRAuth.auth()?.currentUser?.uid : PFUser.current()?.objectId)!
     }
 }

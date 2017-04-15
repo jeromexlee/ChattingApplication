@@ -48,16 +48,34 @@ class LoginController: UIViewController {
             return
         }
         
-        FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, error) in
+        PFUser.logInWithUsername(inBackground: email, password: password) { (user, error) in
             if error != nil {
-                print(error as Any)
+                FIRAuth.auth()?.signIn(withEmail: email, password: password, completion: { (user, error) in
+                    if error != nil {
+                        print(error as Any)
+                        return
+                    }
+                    
+                    self.messagesController?.fetchUserAndSetupNavBarTitle()
+                    
+                    self.dismiss(animated: true, completion: nil)
+                })
                 return
             }
+            
+            let ref = FIRDatabase.database().reference().child("users").child((user?.objectId)!)
+            ref.updateChildValues(["email": user!["email"] as! String, "name": (user!["firstName"] as! String) + " " + (user!["lastName"] as! String)], withCompletionBlock: { (err, ref) in
+                if err != nil {
+                    print(err as Any)
+                    return
+                }
+            })
             
             self.messagesController?.fetchUserAndSetupNavBarTitle()
             
             self.dismiss(animated: true, completion: nil)
-        })
+        }
+        
         
     }
     
@@ -112,7 +130,7 @@ class LoginController: UIViewController {
         let sc = UISegmentedControl(items: ["Login", "Register"])
         sc.translatesAutoresizingMaskIntoConstraints = false;
         sc.tintColor = UIColor.white
-        sc.selectedSegmentIndex = 1
+        sc.selectedSegmentIndex = 0
         sc.addTarget(self, action: #selector(handleLoginRegisterChange), for: .valueChanged)
         return sc;
     }()
@@ -155,6 +173,7 @@ class LoginController: UIViewController {
         setupLoginRegisterButton()
         setupProfileImageView()
         setupLoginRegisterSegmentedControl()
+        handleLoginRegisterChange()
     }
     
     func setupLoginRegisterSegmentedControl() {

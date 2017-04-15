@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import MobileCoreServices
 import AVFoundation
+import Parse
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -32,9 +33,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     var messages = [Message]()
     
     func observeMessages() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid, let toId = user?.id else {
+        guard let toId = user?.id else {
             return
         }
+        let uid = getUid()
         let userMessagesRef = FIRDatabase.database().reference().child("user-messages").child(uid).child(toId)
         userMessagesRef.observe(.childAdded, with: { (snapshot) in
             let messageId = snapshot.key
@@ -326,7 +328,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.messageImageView.isHidden = true
         }
         
-        if message.fromId == FIRAuth.auth()?.currentUser?.uid {
+        if message.fromId == getUid() {
             // Outgoing blue
             cell.bubbleView.backgroundColor = ChatMessageCell.blueColor
             cell.textView.textColor = .white
@@ -395,7 +397,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let ref = FIRDatabase.database().reference().child("messages")
         let childRef = ref.childByAutoId()
         let toId = user!.id!
-        let fromId = FIRAuth.auth()!.currentUser!.uid
+        let fromId = getUid()
         let timestamp = NSNumber(value: Int(Date().timeIntervalSince1970))
         var values: [String: AnyObject] = ["toId": toId as AnyObject, "fromId": fromId as AnyObject, "timestamp": timestamp]
         // append properties dictionary onto values
@@ -505,6 +507,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
+    
+    func getUid() -> String {
+        return (PFUser.current()?.objectId == nil ? FIRAuth.auth()?.currentUser?.uid : PFUser.current()?.objectId)!
+    }
     
 }
 

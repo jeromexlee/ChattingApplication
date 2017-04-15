@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import Parse
 
 class Message: NSObject {
     var fromId: String?
@@ -15,16 +16,19 @@ class Message: NSObject {
     var timestamp: NSNumber?
     var toId: String?
     
+    // sending image or video
     var imageUrl: String?
     var imageWidth: NSNumber?
     var imageHeight: NSNumber?
     
+    // sending video
     var videoUrl: String?
     
+    // sending voice
     var voiceUrl: String?
     
     func chatPartnerId() -> String? {
-        return fromId == FIRAuth.auth()?.currentUser?.uid ? toId : fromId
+        return (fromId == FIRAuth.auth()?.currentUser?.uid || fromId == PFUser.current()?.objectId) ? toId : fromId
     }
     
     init(dictionary: [String: AnyObject]) {
