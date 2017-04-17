@@ -91,7 +91,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }
     
     func generateVoiceUrl() -> URL? {
-        let filename = NSUUID().uuidString + ".caf"
+        let filename = NSUUID().uuidString + ".aac"
         let fileManager = FileManager.default
         let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = urls[0] as URL
@@ -100,14 +100,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }
     
     func handleVoiceRecordedForUrl(url: URL) {
-        let filename = NSUUID().uuidString + ".caf"
+        let filename = NSUUID().uuidString + ".aac"
         FIRStorage.storage().reference().child("message_voices").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
             if error != nil {
                 print("Failed upload of video:", error!)
                 return
-            }
-            if let voiceUrl = metadata?.downloadURL()?.absoluteString {
-                self.sendMessageWithImageUrl(voiceUrl: voiceUrl)
             }
         })
     }
