@@ -106,10 +106,13 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 print("Failed upload of video:", error!)
                 return
             }
+            if let voiceUrl = metadata?.downloadURL()?.absoluteString {
+                self.sendMessageWithVoiceUrl(voiceUrl: voiceUrl)
+            }
         })
     }
     
-    private func sendMessageWithImageUrl(voiceUrl: String) {
+    private func sendMessageWithVoiceUrl(voiceUrl: String) {
         let properties: [String: Any] = ["voiceUrl": voiceUrl]
         self.sendMessageWithProperties(properties: properties as [String : AnyObject])
     }
